@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cars">
+	<select id="carslist" resultType="HashMap">
+		select cars_company from cars GROUP BY cars_company
+	</select>
+	<select id="cars_selectbox2" parameterType="HashMap" resultType="HashMap">
+		select CARS_MODEL from cars where cars_company = #{cars_company} GROUP BY CARS_MODEL
+	</select>
+	<select id="cars_selectbox3" parameterType="HashMap" resultType="HashMap">
+		select CARS_MODEL_DETAILS from cars where CARS_MODEL = #{CARS_MODEL} GROUP BY CARS_MODEL_DETAILS
+	</select>
+	<select id="cars_postlist" parameterType="HashMap" resultType="HashMap">
+		select * from cars_board 
+		where 1=1 
+		<choose>
+		    <when test="CARS_COMPANY != '제조사선택'  and CARS_MODEL != '차량명선택'  and CARS_MODEL_DETAILS != '등급선택'">
+		    	and COMPANY = #{CARS_COMPANY} and MODEL = #{CARS_MODEL} and MODEL_DETAILS = #{CARS_MODEL_DETAILS}
+		    </when>
+		    <when test="CARS_COMPANY != '제조사선택'  and CARS_MODEL != '차량명선택'  and CARS_MODEL_DETAILS == '등급선택'">
+		    	and COMPANY = #{CARS_COMPANY} and MODEL = #{CARS_MODEL}
+			</when>
+		    <when test="CARS_COMPANY != '제조사선택'  and CARS_MODEL == '차량명선택'  and CARS_MODEL_DETAILS == '등급선택'">
+		    	and COMPANY = #{CARS_COMPANY} 
+			</when>
+		</choose>
+	</select>
+</mapper>

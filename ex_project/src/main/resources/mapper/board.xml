@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board">
+<select id="total" resultType="int">
+		select count(*) from board
+</select>
+<select id="board_list" parameterType="HashMap" resultType="HashMap">
+	select * from (select rownum rn, a.* from (
+		select * from board
+		WHERE 1 = 1
+		<if test="search_txt != null">
+			<choose>
+				<when test="search_number == 1">
+					AND subject LIKE '%'||#{search_txt}||'%'
+					OR content LIKE '%'||#{search_txt}||'%'
+				</when>
+				<when test="search_number == 2">
+					AND subject LIKE '%'||#{search_txt}||'%'
+				</when>
+				<when test="search_number == 3">
+					AND content LIKE '%'||#{search_txt}||'%'
+				</when>
+				<when test="search_number == 4">
+					AND	mem_id LIKE '%'||#{search_txt}||'%'
+				</when>
+			</choose>
+		</if>
+		 ORDER BY post_no DESC
+		 ) a) where rn between #{start} and
+    	 #{end}
+	</select>
+	
+	<select id="post_delete" parameterType="java.util.Map" >
+			DELETE FROM board WHERE 1=1 and post_no in
+			<foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+                    #{item}
+            </foreach> 
+	</select>
+		<insert id="post_insert" parameterType="HashMap">
+		insert into board 
+				(
+				  post_no
+				, mem_id
+				, subject
+				, content
+				, reg_date
+				)
+				 values 
+				 (
+				  (select nvl(max(post_no),0)+1 from board)
+				, #{mem_id}
+				, #{subject}
+				, #{content}
+				, sysdate
+				)
+	</insert>
+	<update id="post_update" parameterType="HashMap">
+		update   board
+       set
+               subject = #{subject} 
+             , content = #{content}
+       WHERE post_no = #{post_no}
+	</update>
+	<select id="post_View" parameterType="int" resultType="java.util.Map">
+		select * from board where post_no = #{post_no}
+	</select>
+	
+	
+	
+</mapper>
